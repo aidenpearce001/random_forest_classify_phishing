@@ -12,6 +12,16 @@ from bs4 import BeautifulSoup
 #Legit : 0
 #Suspicious : 2
 
+def alive(url):
+    try:
+        check = urllib.request.urlopen(url).getcode()
+        if check == 200:
+            return 1
+        else:
+            return 0
+    except:
+        return 0
+
 def url_length(url):
     if len(url) >= 54 :
         return 2
@@ -86,7 +96,7 @@ def age_of_domain(url):
         w = whois.whois(url)
         start_date = w.creation_date
         current_date = datetime.datetime.now()
-        age =(current_date-start_date[0]).days
+        age =(current_date-start_date).days
         if(age>=180):
             return 0
         else:
@@ -126,8 +136,8 @@ dataset = pd.DataFrame([])
 for i in range(4):
     data = df.iloc[i,1:]
     data = [x for x in data if str(x) != 'nan']
-    print(i)
     for k in data:
+        # if alive(k) == 1:
         print(k)
         if i == 0:
             labels = 2
@@ -137,5 +147,7 @@ for i in range(4):
             labels = 0
         combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
         dataset = dataset.append(pd.DataFrame(combine))
+        # else:
+            # continue
 
 dataset.to_csv('dataset/file.csv',index = False)
