@@ -7,7 +7,7 @@ import json
 import sys
 import urllib.request
 from bs4 import BeautifulSoup
-
+import datetime 
 #Phishing : 1
 #Legit : 0
 #Suspicious : 2
@@ -98,8 +98,10 @@ def age_of_domain(url):
         current_date = datetime.datetime.now()
         age =(current_date-start_date).days
         if(age>=180):
+            # print('Legit '+url)
             return 0
         else:
+            # print('phishing '+url)
             return 2
     except Exception as e:
         return 0
@@ -137,17 +139,17 @@ for i in range(4):
     data = df.iloc[i,1:]
     data = [x for x in data if str(x) != 'nan']
     for k in data:
-        # if alive(k) == 1:
-        print(k)
-        if i == 0:
-            labels = 2
-        elif i == 1 or i == 2 :
-            labels = 1
-        elif i == 3:
-            labels = 0
-        combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
-        dataset = dataset.append(pd.DataFrame(combine))
-        # else:
-            # continue
+        if alive(k) == 1:
+        # print(k)
+            if i == 0:
+                labels = 2
+            elif i == 1 or i == 2 :
+                labels = 1
+            elif i == 3:
+                labels = 0
+            combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+            dataset = dataset.append(pd.DataFrame(combine))
+        else:
+            continue
 
 dataset.to_csv('dataset/file.csv',index = False)
