@@ -153,9 +153,9 @@ for i in range(4):
                 labels = 1
             elif i == 3:
                 labels = 0
-            age_of_domain(k)
-            # combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
-            # dataset = dataset.append(pd.DataFrame(combine))
+            # age_of_domain(k)
+            combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+            dataset = dataset.append(pd.DataFrame(combine))
         else:
             continue
 
