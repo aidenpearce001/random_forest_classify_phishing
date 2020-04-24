@@ -95,16 +95,22 @@ def age_of_domain(url):
     try:
         w = whois.whois(url)
         start_date = w.creation_date
+        print(type(start_date))
+        if type(start_date) == datetime.datetime:
+            start = start_date
+        elif type(start_date) == list:
+            start = start_date[0]
         current_date = datetime.datetime.now()
-        age =(current_date-start_date).days
-        if(age>=180):
-            # print('Legit '+url)
+        age =(current_date-start).days
+        if(age>=31):
+            # print('Legit '+url+":"+str(age))
             return 0
         else:
-            # print('phishing '+url)
+            # print('phishing '+url+":"+str(age))
             return 2
     except Exception as e:
-        return 0
+        # print('phishing '+url)
+        return 2
             
 def favion(url):
     pass
@@ -147,8 +153,9 @@ for i in range(4):
                 labels = 1
             elif i == 3:
                 labels = 0
-            combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
-            dataset = dataset.append(pd.DataFrame(combine))
+            age_of_domain(k)
+            # combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+            # dataset = dataset.append(pd.DataFrame(combine))
         else:
             continue
 
