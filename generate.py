@@ -146,7 +146,7 @@ for i in range(4):
     data = [x for x in data if str(x) != 'nan']
     for k in data:
         if alive(k) == 1:
-        # print(k)
+            print(k)
             if i == 0:
                 labels = 2
             elif i == 1 or i == 2 :
