@@ -7,8 +7,12 @@ import json
 import sys
 import urllib.request
 from bs4 import BeautifulSoup
+<<<<<<< HEAD
 import datetime
 
+=======
+import datetime 
+>>>>>>> 75d6c51623d40f50e9e27d83e59854844cb99551
 #Phishing : 1
 #Legit : 0
 #Suspicious : 2
@@ -96,6 +100,7 @@ def age_of_domain(url):
     try:
         w = whois.whois(url)
         start_date = w.creation_date
+<<<<<<< HEAD
         if type(start_date) == list:
             start = start_date[0]
         elif type(start_date) == datetime.datetime:
@@ -104,10 +109,23 @@ def age_of_domain(url):
         age =(current_date-start).days
         # print(age)
         if(age>=62):
+=======
+        print(type(start_date))
+        if type(start_date) == datetime.datetime:
+            start = start_date
+        elif type(start_date) == list:
+            start = start_date[0]
+        current_date = datetime.datetime.now()
+        age =(current_date-start).days
+        if(age>=31):
+            # print('Legit '+url+":"+str(age))
+>>>>>>> 75d6c51623d40f50e9e27d83e59854844cb99551
             return 0
         else:
+            # print('phishing '+url+":"+str(age))
             return 2
     except Exception as e:
+<<<<<<< HEAD
         return 2
 
 def combo1(url):
@@ -128,6 +146,11 @@ def combo3(url):
     else:
         return 0
 
+=======
+        # print('phishing '+url)
+        return 2
+            
+>>>>>>> 75d6c51623d40f50e9e27d83e59854844cb99551
 def favion(url):
     pass
         # page = urllib.request.urlopen(l)
@@ -171,7 +194,12 @@ for i in range(4):
                 labels = 1
             elif i == 3:
                 labels = 0
+<<<<<<< HEAD
             combine = np.append(label(labels),vector(k)).reshape(1 ,14) 
+=======
+            # age_of_domain(k)
+            combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+>>>>>>> 75d6c51623d40f50e9e27d83e59854844cb99551
             dataset = dataset.append(pd.DataFrame(combine))
         else:
             continue
