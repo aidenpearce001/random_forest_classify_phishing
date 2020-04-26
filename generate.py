@@ -7,8 +7,9 @@ import json
 import sys
 import urllib.request
 from bs4 import BeautifulSoup
-import datetime
-
+import datetime 
+import tldextract
+import time
 #Phishing : 1
 #Legit : 0
 #Suspicious : 2
@@ -57,15 +58,15 @@ def sub_domain(url):
     else:
         return 0
 
-def puny(url):
-    import idna
-    try:
-        url = ' '.join(repr(x).lstrip('u')[1:-1] for x in url)
-        domain = url.split("/")
-        if "xn--" in str(idna.encode(name[2])):
-            return 1
-    except:
-        return 0
+# def puny(url):
+#     import idna
+#     try:
+#         url = ' '.join(repr(x).lstrip('u')[1:-1] for x in url)
+#         domain = url.split("/")
+#         if "xn--" in str(idna.encode(name[2])):
+#             return 1
+#     except:
+#         return 0
 
 def protocol_in_domain(url):
     if "https" in url or "http" in url:
@@ -91,89 +92,121 @@ def shorten(url):
         return 2 
     else:
         return 0
-
-def age_of_domain(url):
-    try:
-        w = whois.whois(url)
-        start_date = w.creation_date
-        if type(start_date) == list:
-            start = start_date[0]
-        elif type(start_date) == datetime.datetime:
-            start = start_date
-        current_date = datetime.datetime.now()
-        age =(current_date-start).days
-        # print(age)
-        if(age>=62):
+def digitcount(url):
+    digit_num = sum([1 for c in url if c.isdigit()])
+    if(digit_num <= 7):
+        return 0
+    else: 
+        return 1
+def suffixcount(url):
+    ext = tldextract.extract(url)
+    number = url.count(ext.suffix)
+    if(number <= 3):
+        return 0
+    else: 
+        return 1
+def Prefix_Suffix(url):
+        try:
+            _, domain, _ = tldextract.extract(url)
+            if(domain.count('-')):
+                return 1
+                
+            else:
+                return -1
+                
+        except Exception as e:
+            print("err_Prefix_Suffix",e)
             return 0
-        else:
-            return 2
-    except Exception as e:
-        return 2
-
-def combo1(url):
-    if '-' in url and '//' in str(url[7:]) :
+# def age_of_domain(url):
+#     try:
+#         w = whois.whois(url)
+#         start_date = w.creation_date
+#         print(type(start_date))
+#         if type(start_date) == datetime.datetime:
+#             start = start_date
+#         elif type(start_date) == list:
+#             start = start_date[0]
+#         current_date = datetime.datetime.now()
+#         age =(current_date-start).days
+#         if(age>=180):
+#             # print('Legit '+url+":"+str(age))
+#             return 1
+#         else:
+#             # print('phishing '+url+":"+str(age))
+#             return -1
+#     except Exception as e:
+#         # print('phishing '+url)
+#         return 2
+            
+# def google_index(url):
+#         try:
+#             r = requests.head("https://webcache.googleusercontent.com/search?q=cache:" + url, timeout=7)
+#             if r.status_code == 404:
+#                 return -1
+#             else:
+#                 return 1
+#         except Exception as e:
+#             print("Error!")
+#             return -1
+#  def URL_of_Anchor(url):
+#         try:
+#             t1 = time.time()
+#             regex_str = "<a href=\".*?\""
+#             html = requests.get(url,timeout=7).text
+#             links_list = regex.findall(regex_str,html)
+#             count_internal = 0
+#             for link in links_list:
+#                 if url_is_internal(link,url):
+#                     count_internal += 1
+#             if len(links_list) == 0:
+#                 return 1
+#             else: 
+#                 count_anchor = len(links_list) - count_internal
+#                 rate = count_anchor / len(links_list)
+#                 anchor_link_count = count_anchor
+#                 if (rate < 0.31):
+#                     return -1
+#                 else:
+#                     status = 1
+def Have_Slash_Symbol_IP(url):
+    match=re.search('(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'  #IPv4
+                        '((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)'  #IPv4 in hexadecimal
+                        '(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}',url)
+    if match:   
         return 1
-    else:
-        return 0
-
-def combo2(url):
-    if '-' in url and '@' in url:
+    elif "@" in str(url):
         return 1
-    else:
-        return 0
-
-def combo3(url):   
-    if '@' in url and '//' in str(url[7:]) :
+    elif "//" in str(url[7:]):
         return 1
-    else:
-        return 0
-
-def favion(url):
-    pass
-        # page = urllib.request.urlopen(l)
-        # soup = BeautifulSoup(page,"html.parser")
-        # icon_link = soup.find("link", rel="shortcut icon")
-        # icon = urllib.urlopen(icon_link['href'])
-        # prin(l+":"+icon_link)
-    # except KeyboardInterrupt:
-    #     sys.exit(0)
-    # except:
-    #     continue
-
+    else: 
+        return 0 
 def label(num):
     ls = [[num]]
     return ls
 
 def vector(url):
-    vec = [[url_length(url),redirect(url),symbol(url),ip_in_url(url),sub_domain(url),puny(url),protocol_in_domain(url),
-    http_notsafe(url),shorten(url),age_of_domain(url),combo1(url),combo2(url),combo3(url)]]
+    vec = [[url_length(url),sub_domain(url), protocol_in_domain(url), http_notsafe(url),shorten(url), Have_Slash_Symbol_IP(url), suffixcount(url), digitcount(url), Prefix_Suffix(url)]]
 
     return vec
 
-df = pd.read_csv("dataset/data.csv")
 
-dataset = pd.DataFrame([])
 
-# data = df.iloc[1,1:]
-# data = [x for x in data if str(x) != 'nan']
-# for i in data:
-#     print(age_of_domain(i))
-# age_of_domain("https://www.google.com/")
-for i in range(4):
-    data = df.iloc[i,1:]
-    data = [x for x in data if str(x) != 'nan']
-    for k in data:
-        if alive(k) == 1:
-            print(k)
-            if i == 0:
-                labels = 2
-            elif i == 1 or i == 2 :
-                labels = 1
-            elif i == 3:
-                labels = 0
-            combine = np.append(label(labels),vector(k)).reshape(1 ,14) 
-            dataset = dataset.append(pd.DataFrame(combine))
-        else:
-            continue
+# for i in range(4):
+#     data = df.iloc[i,1:]
+#     data = [x for x in data if str(x) != 'nan']
+#     for k in data:
+#         if alive(k) == 1:
+#             print(k)
+#             if i == 0:
+#                 labels = 2
+#             elif i == 1 or i == 2 :
+#                 labels = 1
+#             elif i == 3:
+#                 labels = 0
+#             # age_of_domain(k)
+#             combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+#             dataset = dataset.append(pd.DataFrame(combine))
+#         else:
+#             continue
 
-dataset.to_csv('dataset/file.csv',index = False)
+# dataset.to_csv('dataset/file.csv',index = False)
