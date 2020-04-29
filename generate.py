@@ -10,19 +10,23 @@ from bs4 import BeautifulSoup
 import datetime 
 import tldextract
 import time
+from socket import timeout
+
 #Phishing : 1
 #Legit : 0
 #Suspicious : 2
 
 def alive(url):
     try:
-        check = urllib.request.urlopen(url).getcode()
+        check = urllib.request.urlopen(url,timeout=10).getcode()
         if check == 200:
             return 1
         else:
             return 0
+    except timeout:      
+        return 2
     except:
-        return 0
+        return 2
 
 def url_length(url):
     if len(url) >= 54 :
@@ -58,15 +62,15 @@ def sub_domain(url):
     else:
         return 0
 
-# def puny(url):
-#     import idna
-#     try:
-#         url = ' '.join(repr(x).lstrip('u')[1:-1] for x in url)
-#         domain = url.split("/")
-#         if "xn--" in str(idna.encode(name[2])):
-#             return 1
-#     except:
-#         return 0
+def puny(url):
+    import idna
+    try:
+        url = ' '.join(repr(x).lstrip('u')[1:-1] for x in url)
+        domain = url.split("/")
+        if "xn--" in str(idna.encode(name[2])):
+            return 1
+    except:
+        return 0
 
 def protocol_in_domain(url):
     if "https" in url or "http" in url:
@@ -98,13 +102,7 @@ def digitcount(url):
         return 0
     else: 
         return 1
-def suffixcount(url):
-    ext = tldextract.extract(url)
-    number = url.count(ext.suffix)
-    if(number <= 3):
-        return 0
-    else: 
-        return 1
+
 def Prefix_Suffix(url):
         try:
             _, domain, _ = tldextract.extract(url)
@@ -117,26 +115,26 @@ def Prefix_Suffix(url):
         except Exception as e:
             print("err_Prefix_Suffix",e)
             return 0
-# def age_of_domain(url):
-#     try:
-#         w = whois.whois(url)
-#         start_date = w.creation_date
-#         print(type(start_date))
-#         if type(start_date) == datetime.datetime:
-#             start = start_date
-#         elif type(start_date) == list:
-#             start = start_date[0]
-#         current_date = datetime.datetime.now()
-#         age =(current_date-start).days
-#         if(age>=180):
-#             # print('Legit '+url+":"+str(age))
-#             return 1
-#         else:
-#             # print('phishing '+url+":"+str(age))
-#             return -1
-#     except Exception as e:
-#         # print('phishing '+url)
-#         return 2
+def age_of_domain(url):
+    try:
+        w = whois.whois(url)
+        start_date = w.creation_date
+        print(type(start_date))
+        if type(start_date) == datetime.datetime:
+            start = start_date
+        elif type(start_date) == list:
+            start = start_date[0]
+        current_date = datetime.datetime.now()
+        age =(current_date-start).days
+        if(age>=180):
+            # print('Legit '+url+":"+str(age))
+            return 1
+        else:
+            # print('phishing '+url+":"+str(age))
+            return -1
+    except Exception as e:
+        # print('phishing '+url)
+        return 2
             
 # def google_index(url):
 #         try:
@@ -185,28 +183,30 @@ def label(num):
     return ls
 
 def vector(url):
-    vec = [[url_length(url),sub_domain(url), protocol_in_domain(url), http_notsafe(url),shorten(url), Have_Slash_Symbol_IP(url), suffixcount(url), digitcount(url), Prefix_Suffix(url)]]
+    vec = [[url_length(url),sub_domain(url), protocol_in_domain(url), http_notsafe(url),shorten(url), Have_Slash_Symbol_IP(url), suffixcount(url), digitcount(url), Prefix_Suffix(url),age_of_domain(url),puny(url)]]
 
     return vec
 
+df = pd.read_csv("dataset/data.csv")
 
+dataset = pd.DataFrame([])
 
-# for i in range(4):
-#     data = df.iloc[i,1:]
-#     data = [x for x in data if str(x) != 'nan']
-#     for k in data:
-#         if alive(k) == 1:
-#             print(k)
-#             if i == 0:
-#                 labels = 2
-#             elif i == 1 or i == 2 :
-#                 labels = 1
-#             elif i == 3:
-#                 labels = 0
-#             # age_of_domain(k)
-#             combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
-#             dataset = dataset.append(pd.DataFrame(combine))
-#         else:
-#             continue
+for i in range(4):
+    data = df.iloc[i,1:]
+    data = [x for x in data if str(x) != 'nan']
+    for k in data:
+        if alive(k) == 1:
+            print(k)
+            if i == 0:
+                labels = 2
+            elif i == 1 or i == 2 :
+                labels = 1
+            elif i == 3:
+                labels = 0
+            # age_of_domain(k)
+            combine = np.append(label(labels),vector(k)).reshape(1 ,11) 
+            dataset = dataset.append(pd.DataFrame(combine))
+        else:
+            continue
 
-# dataset.to_csv('dataset/file.csv',index = False)
+dataset.to_csv('dataset/file.csv',index = False)
