@@ -218,6 +218,7 @@ col_list = [ "ip_in_url", "url_length",   "shortening_service",  "symbol", "redi
 df = pd.read_csv("dataset/new_data.csv")
 dataframe = []
 feature = []
+#1 phishing || 0 legit
 for i in range(2):
     for j in df.iloc[i, :]:
         if isinstance(j, str):
