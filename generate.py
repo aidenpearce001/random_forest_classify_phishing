@@ -211,14 +211,15 @@ def main(url):
     
     return feature
 
-col_list = [ "ip_in_url", "url_length",   "shortening_service",  "symbol", "redirect", 
+col_list = ["ip_in_url", "url_length",   "shortening_service",  "symbol", "redirect", 
             "prefix_suffix","  having_sub_domain","digitcount", "suffixcount",
-            " statistical_report ", "web_traffic",  "https_token", "age_domain", "abnormal_url"]
+            "statistical_report ", "web_traffic",  "https_token", "age_domain", "abnormal_url", "label"]
 
 df = pd.read_csv("dataset/new_data.csv")
 dataframe = []
 feature = []
-#1 phishing || 0 legit
+#1 phishing 
+#0 legit
 for i in range(2):
     for j in df.iloc[i, :]:
         if isinstance(j, str):
@@ -226,11 +227,11 @@ for i in range(2):
             if i == 0:
                 feature.append(1)
             else:
-                feature.append(0)
-            dataframe.append(feature)
+                feature.append(0)  
         else:
             continue
-
+        dataframe.append(feature)
+dataset = pd.DataFrame(dataframe, columns = col_list)
 
 
 # def alive(url):
