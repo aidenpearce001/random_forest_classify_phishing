@@ -4,3 +4,5 @@ whois
 tldextract
 bs4
 joblib
+numpy
+sklearn
