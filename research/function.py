@@ -20,6 +20,6 @@ def check_vector(vec):
         return 2
 
 if __name__ == "__main__":
-    vec = vector("https://github.com/yitteam/")
+    vec = vector("https://www.google.com/")
     result = check_vector(vec)
     print(result)
